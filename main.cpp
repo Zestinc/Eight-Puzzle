@@ -17,7 +17,9 @@ public:
     }
 
     bool operator < (const PuzzleState &p) const{
-        return MTH(*this) > MTH(p);
+//        return MTH(*this) > MTH(p);
+        return MDH(*this) > MDH(p);
+
     }
 
     PuzzleState operator = (const PuzzleState &p) {
@@ -37,11 +39,27 @@ public:
         return misplaced;
     }
 
+    const int findMD(int current, int goal, int rowSize) const{
+        int x1, y1, x2, y2;
+        x1 = current / rowSize;
+        y1 = current % rowSize;
+        x2 = goal / rowSize;
+        y2 = goal % rowSize;
+
+        return abs(x1 - x2) + abs(y1 - y2);
+    }
+
     // Manhattan Distance heuristic
-//    const int MDH(PuzzleState puzzleState) const{
-//        vector<int> state = puzzleState.state;
-//        int distance = 0;
-//    }
+    const int MDH(PuzzleState puzzleState) const{
+        vector<int> state = puzzleState.state;
+        int rowSize = (int)sqrt(puzzleSize + 1);
+        int distance = 0;
+        for (int i = 0; i < puzzleSize + 1; ++i) {
+            if (!state[i]) continue;
+            distance += findMD(state[i], i + 1, rowSize);
+        }
+        return distance;
+    }
 };
 
 class EightPuzzle {
