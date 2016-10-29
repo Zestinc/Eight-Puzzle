@@ -7,12 +7,41 @@
 using namespace std;
 
 class PuzzleState {
+private:
+    const int puzzleSize = PUZZLESIZE;
 public:
     vector<int> state;
     vector<vector<int>> path;
     bool empty() {
         return state.empty();
     }
+
+    bool operator < (const PuzzleState &p) const{
+        return MTH(*this) > MTH(p);
+    }
+
+    PuzzleState operator = (const PuzzleState &p) {
+        state = p.state;
+        path = p.path;
+        return *this;
+    }
+
+    //Misplaced Tile heuristic
+    const int MTH(PuzzleState puzzleState) const{
+        vector<int> state = puzzleState.state;
+        int misplaced = 0;
+        for (int i = 0; i < puzzleSize + 1; ++i ) {
+            if (!state[i]) continue;
+            if (state[i] != i + 1) misplaced++;
+        }
+        return misplaced;
+    }
+
+    // Manhattan Distance heuristic
+//    const int MDH(PuzzleState puzzleState) const{
+//        vector<int> state = puzzleState.state;
+//        int distance = 0;
+//    }
 };
 
 class EightPuzzle {
@@ -101,13 +130,29 @@ public:
         return state;
     }
 
+    void showPath(PuzzleState p) {
+        auto path = p.path;
+        for (auto state : path) {
+            for (int i = 0; i < puzzleSize + 1; ++i) {
+                if (i % rowSize == 0) {
+                    cout << endl;
+                }
+                cout << state[i] << " ";
+            }
+            cout << endl;
+        }
+    }
+
     PuzzleState bfs(PuzzleState state) {
 
-        queue<PuzzleState> mQueue;
+        priority_queue<PuzzleState, vector<PuzzleState>> mQueue;
+//        queue<PuzzleState> mQueue;
         mQueue.push(state);
 
         while (!mQueue.empty()) {
-            PuzzleState currentState = mQueue.front();
+//            PuzzleState currentState = mQueue.front();
+            PuzzleState currentState = mQueue.top();
+
             mQueue.pop();
 
             if (flag.count(currentState.state))
@@ -136,19 +181,6 @@ public:
         }
 
         return PuzzleState();
-    }
-
-    void showPath(PuzzleState p) {
-        auto path = p.path;
-        for (auto state : path) {
-            for (int i = 0; i < puzzleSize + 1; ++i) {
-                if (i % rowSize == 0) {
-                    cout << endl;
-                }
-                cout << state[i] << " ";
-            }
-            cout << endl;
-        }
     }
 };
 
