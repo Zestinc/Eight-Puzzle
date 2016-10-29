@@ -1,7 +1,9 @@
 #include <iostream>
 #include <map>
 #include <queue>
+#include <cmath>
 #include <vector>
+#define PUZZLESIZE 15
 using namespace std;
 
 class PuzzleState {
@@ -15,11 +17,15 @@ public:
 
 class EightPuzzle {
 private:
+    const int puzzleSize = PUZZLESIZE;
     map<vector<int>, bool> flag;
+    int rowSize;
 public:
-
+    EightPuzzle() {
+        rowSize = (int) sqrt(puzzleSize + 1);
+    }
     bool goal(vector<int> state) {
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < puzzleSize; i++) {
             if (i+1 != state[i])
                 return false;
         }
@@ -38,11 +44,11 @@ public:
     PuzzleState goUp(PuzzleState state) {
         vector<int> currentState = state.state;
         int blankPosition = findBlank(currentState);
-        if (blankPosition <= 2) {
+        if (blankPosition < rowSize) {
             return PuzzleState();
         }
 
-        int above = blankPosition - 3;
+        int above = blankPosition - rowSize;
         swap(currentState[blankPosition], currentState[above]);
 
         state.state = currentState;
@@ -53,11 +59,11 @@ public:
     PuzzleState goDown(PuzzleState state) {
         vector<int> currentState = state.state;
         int blankPosition = findBlank(currentState);
-        if (blankPosition >= 6) {
+        if (blankPosition > puzzleSize - rowSize) {
             return PuzzleState();
         }
 
-        int down = blankPosition + 3;
+        int down = blankPosition + rowSize;
         swap(currentState[blankPosition], currentState[down]);
 
         state.state = currentState;
@@ -68,7 +74,7 @@ public:
     PuzzleState goLeft(PuzzleState state) {
         vector<int> currentState = state.state;
         int blankPosition = findBlank(currentState);
-        if (blankPosition % 3 == 0) {
+        if (blankPosition % rowSize == 0) {
             return PuzzleState();
         }
 
@@ -83,7 +89,7 @@ public:
     PuzzleState goRight(PuzzleState state) {
         vector<int> currentState = state.state;
         int blankPosition = findBlank(currentState);
-        if ((blankPosition + 1) % 3 == 0) {
+        if ((blankPosition + 1) % rowSize == 0) {
             return PuzzleState();
         }
 
@@ -135,8 +141,8 @@ public:
     void showPath(PuzzleState p) {
         auto path = p.path;
         for (auto state : path) {
-            for (int i = 0; i < 9; ++i) {
-                if (i % 3 == 0) {
+            for (int i = 0; i < puzzleSize + 1; ++i) {
+                if (i % rowSize == 0) {
                     cout << endl;
                 }
                 cout << state[i] << " ";
@@ -149,8 +155,9 @@ public:
 
 
 int main() {
-    vector<int> init(9);
-    for (int i = 0; i < 9; ++i) {
+
+    vector<int> init(PUZZLESIZE + 1);
+    for (int i = 0; i < PUZZLESIZE + 1; ++i) {
         cin >> init[i];
     }
     EightPuzzle eightPuzzle;
@@ -162,7 +169,17 @@ int main() {
         eightPuzzle.showPath(puzzleState);
 }
 
-/*
- * 1 2 3 4 8 0 7 6 5
- * 1 0 2 3 4 5 6 7 8
- */
+/***
+1 2 3 4 8 0 7 6 5
+1 0 2 3 4 5 6 7 8
+
+1 2 3 4
+5 6 7 8
+9 10 11 12
+13 14 0 15
+
+0 2 3 4
+1 6 7 8
+5 10 11 12
+9 13 14 15
+ ***/
